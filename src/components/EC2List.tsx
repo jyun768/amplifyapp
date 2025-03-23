@@ -15,20 +15,13 @@ const EC2List = () => {
   const fetchInstances = async () => {
     setLoading(true);
     try {
-      // EC2クライアントを初期化
-      const client = new EC2Client({ 
-        region: region,
-        credentials: {
-          // 認証情報を設定（環境に合わせて調整）
-          accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-        }
-      });
-
+      // EC2クライアントを初期化（認証情報は指定せず、IAMロールに依存）
+      const client = new EC2Client({ region });
+      
       // EC2インスタンスの情報を取得
       const command = new DescribeInstancesCommand({});
       const response = await client.send(command);
-
+      
       // インスタンス情報を抽出して整形
       const instanceList = [];
       
@@ -52,7 +45,8 @@ const EC2List = () => {
                 state: instance.State?.Name,
                 publicIp: instance.PublicIpAddress || '-',
                 privateIp: instance.PrivateIpAddress || '-',
-                launchTime: instance.LaunchTime
+                launchTime: instance.LaunchTime,
+                az: instance.Placement?.AvailabilityZone || '-'
               });
             });
           }
@@ -63,7 +57,7 @@ const EC2List = () => {
       setError(null);
     } catch (err) {
       console.error('EC2インスタンスの取得中にエラーが発生しました:', err);
-      setError('EC2インスタンスの取得に失敗しました。認証情報とリージョン設定を確認してください。');
+      setError('EC2インスタンスの取得に失敗しました。IAMロールの権限を確認してください。');
     } finally {
       setLoading(false);
     }
@@ -129,6 +123,7 @@ const EC2List = () => {
                 <th>インスタンスID</th>
                 <th>タイプ</th>
                 <th>状態</th>
+                <th>アベイラビリティゾーン</th>
                 <th>パブリックIP</th>
                 <th>プライベートIP</th>
                 <th>起動時間</th>
@@ -145,6 +140,7 @@ const EC2List = () => {
                       {instance.state}
                     </span>
                   </td>
+                  <td>{instance.az}</td>
                   <td>{instance.publicIp}</td>
                   <td>{instance.privateIp}</td>
                   <td>{new Date(instance.launchTime).toLocaleString()}</td>
