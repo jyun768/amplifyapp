@@ -1,23 +1,19 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import EC2List from './components/EC2List.tsx';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>AWS EC2管理ダッシュボード</h1>
       </header>
+      <main>
+        <EC2List />
+      </main>
+      <footer className="App-footer">
+        <p>&copy; {new Date().getFullYear()} AWS EC2ダッシュボード</p>
+      </footer>
     </div>
   );
 }
